@@ -1,0 +1,22 @@
+venv/
+
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore SQLite database files 
+*.sqlite3
+
+# Logs
+*.log
+
+# Environment variables 
+.env
+
+# VS Code workspace settings
+.vscode/
+
+# Mac system files 
+.DS_Store
