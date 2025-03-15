@@ -7,14 +7,29 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
 </head>
 <body>
-    <div class="container">
-        <h1>Enter Your Name & Pin </h1>
-        <form method="POST">
-            <input type="text" name="username" placeholder="Your Name" required>
-            <input type="text" name="pin" placeholder="Your Pin" required>
-            <button type="submit">Enter</button>
+    <div class="holder">
+  <div class="candle">
+    <div class="blinking-glow"></div>
+    <div class="thread"></div>
+    <div class="glow"></div>
+    <div class="flame"></div>
+  </div>
+</div>
+
+
+<div class="container">
+    <input class="c-checkbox" type="checkbox" id="checkbox">
+    <div class="c-formContainer">
+        <form class="c-form" action="" method="POST">
+            <input class="c-form__input" placeholder="Username" type="text" name="username" required>
+            <input class="c-form__input" placeholder="Pin" type="password" name="pin" required>
+            <button class="c-form__button" type="submit">Enter</button>
+
+            <label class="c-form__toggle" for="checkbox" data-title="login"></label>
         </form>
     </div>
+</div>
+
     
 </body>
 </html>
