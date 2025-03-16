@@ -3,13 +3,14 @@
 @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap');
 
 .title {
-  font-family: 'Fredoka', sans-serif; /* ✅ Apply Fredoka to the title */
   font-size: 5rem;
-  color: wheat;
-  margin: 0;
-  position: absolute;
-  top: 85px;
-  right: 41%;
+    font-family: 'Fredoka', sans-serif;
+    color: wheat;
+    position: absolute;
+    top: 85px;
+    left: 50%; /* Move to the middle of the screen */
+    transform: translateX(-50%); /* Adjust for exact centering */
+
 }
 
 *, *:before, *:after {
