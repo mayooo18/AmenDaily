@@ -1,14 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <link rel="stylesheet" href="{{url_for('static', filename='styles.xss')}}">
+    <title>Welcome</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 </head>
 <body>
-    <h1>Hey {{username}}!</h1>
-    <p>This is your personal prayer page.</p>
-    <a href="{{url_for('logout')}}">Logout</a>
+    <h2>Welcome, {{ username }}!</h2>
+    
+    <h3>Today's Scripture:</h3>
+    <p>{{ scripture }}</p>
+
+    <h3>Your Journal Entries:</h3>
+    <ul>
+        {% for entry in user_data.journal %}
+        <li>{{ entry }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Add a Journal Entry:</h3>
+    <form action="/journal" method="POST">
+        <textarea name="entry" required></textarea>
+        <button type="submit">Save</button>
+    </form>
+
+    <h3>Your Bookmarked Prayers:</h3>
+    <ul>
+        {% for prayer in user_data.bookmarks %}
+        <li>{{ prayer }}</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Bookmark a Prayer:</h3>
+    <form action="/bookmark" method="POST">
+        <input type="text" name="prayer" required>
+        <button type="submit">Bookmark</button>
+    </form>
+
+    <a href="/logout">Logout</a>
 </body>
 </html>

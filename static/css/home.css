@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&display=swap');/* General Styles for All Pages Except Login */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #000110; /* Light blue background */
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+
+/* Main Container */
+.container {
+    max-width: 600px;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+/* Lists */
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    background: #fff;
+    padding: 10px;
+    margin: 5px 0;
+    border-radius: 5px;
+    box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Forms */
+form {
+    margin-top: 15px;
+}
+
+textarea, input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ffffff;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+button {
+    background: #5c67f2;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    background: #4a54e1;
+}
+
+/* Logout Link */
+a {
+    display: block;
+    margin-top: 15px;
+    text-decoration: none;
+    color: #5c67f2;
+    font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+
+body {
+    font-family:'Fredoka', sans-serif;/* Change to any font */
+    color: wheat;  /* Text color (dark gray) */
+}
+
+/* Headings */
+h2, h3 {
+    color: wheat;  /* Dark blue */
+    font-family: "Georgia", serif;  /* Example: A different font for headings */
+}
+
+/* Paragraphs (like scripture) */
+p {
+    color: wheat;  /* Medium dark gray */
+    font-size: 16px;
+}
+
+/* Lists (Journal & Bookmarks) */
+ul {
+    color: wheat;  /* Darker text for lists */
+    font-size: 14px;
+}

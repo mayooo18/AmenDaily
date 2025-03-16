@@ -1,0 +1,17 @@
+{
+    "mario": {
+        "pin": "1234",
+        "journal": [],
+        "bookmarks": []
+    },
+    "123": {
+        "pin": "123",
+        "journal": [],
+        "bookmarks": []
+    },
+    "narui": {
+        "pin": "2344",
+        "journal": [],
+        "bookmarks": []
+    }
+}

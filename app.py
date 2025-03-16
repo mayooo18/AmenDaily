@@ -8,6 +8,22 @@ from datetime import date
 app = Flask(__name__)
 app.secret_key = "key"
 
+USER_DATA_FILE = "users.json"
+
+if not os.path.exists(USER_DATA_FILE):
+    with open(USER_DATA_FILE, "w") as f:
+        json.dump({}, f)
+
+def load_users():
+    """Load user data from JSON file."""
+    with open(USER_DATA_FILE, "r") as f:
+        return json.load(f)
+
+def save_users(users):
+    """Save user data to JSON file."""
+    with open(USER_DATA_FILE, "w") as f:
+        json.dump(users, f, indent=4)
+
 def get_daily_scripture():
     try:
         # Path to the JSON file containing the entire Bible
@@ -75,6 +91,12 @@ def login():
         pin = request.form["pin"].strip()
         if username and pin:
             session["user"] = username
+
+            users = load_users()
+            if username not in users:
+                users[username] = {"pin": pin, "journal": [], "bookmarks": []}
+                save_users(users)
+
             return redirect(url_for('home'))
     return render_template('login.html')
 
@@ -83,15 +105,48 @@ def home():
     if "user" not in session:
         return redirect(url_for('login')) #if no user returns back to login
     username = session["user"]
+    users = load_users()
+    user_data = users.get(username, {"journal": [], "bookmarks": []})
     scripture = get_daily_scripture()
-    return render_template('index.html', username=username, scripture=scripture)
+    return render_template('index.html', username=username, scripture=scripture, user_data=user_data)
 
 
 @app.route('/logout')
 def logout():
-    session.pop("user", None)  # Logs user out
-    return redirect(url_for('login'))  # Redirect back to login
+    session.pop("user", None)
+    return redirect(url_for('login'))
 
+@app.route('/journal', methods=["POST"])
+def save_journal():
+    """Save a journal entry for the logged-in user."""
+    if "user" not in session:
+        return redirect(url_for('login'))
+
+    users = load_users()
+    username = session["user"]
+    journal_entry = request.form.get("entry")
+
+    if journal_entry:
+        users[username]["journal"].append(journal_entry)
+        save_users(users)
+
+    return redirect(url_for('home'))
+
+@app.route('/bookmark', methods=["POST"])
+def bookmark_prayer():
+    """Bookmark a prayer for the logged-in user."""
+    if "user" not in session:
+        return redirect(url_for('login'))
+
+    users = load_users()
+    username = session["user"]
+    prayer = request.form.get("prayer")
+
+    if prayer and prayer not in users[username]["bookmarks"]:
+        users[username]["bookmarks"].append(prayer)
+        save_users(users)
+
+    return redirect(url_for('home'))
 
 if __name__ == '__main__':
     app.run(debug=True)
