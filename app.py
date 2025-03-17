@@ -1,8 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-import os
-import json
-import random
-import requests
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+import os , json, random, requests, uuid
 from datetime import date, datetime
 
 app = Flask(__name__)
@@ -23,6 +20,46 @@ def save_users(users):
     """Save user data to JSON file."""
     with open(USER_DATA_FILE, "w") as f:
         json.dump(users, f, indent=4)
+
+
+@app.route("/delete_entry", methods=["POST"])
+def delete_entry():
+    if "user" not in session:  
+        return jsonify({"error": "Not logged in"}), 403
+
+    username = session["user"]
+    data = request.json
+    entry_id = data.get("entry_id")
+
+    users = load_users()  # Load the JSON data
+    if username in users:
+        updated_journal = [entry for entry in users[username]["journal"] if entry["id"] != entry_id]
+        users[username]["journal"] = updated_journal
+        save_users(users)  # Ensure it's saved
+
+        return jsonify({"message": "Entry deleted successfully"})
+
+    return jsonify({"error": "User not found"}), 404
+
+@app.route("/edit_entry", methods=["POST"])
+def edit_entry():
+    if "user" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    username = session["user"]
+    data = request.json
+    entry_id = data.get("entry_id")
+    new_text = data.get("new_text")
+
+    users = load_users()
+    if username in users:
+        for entry in users[username].get("journal", []):
+            if entry["id"] == entry_id:
+                entry["journal"] = new_text
+                entry["edited_at"] = datetime.now().isoformat()  # Optional: Track edits
+                save_users(users)
+                return jsonify({"message": "Entry updated successfully"})
+    return jsonify({"error": "Entry not found"}), 404
 
 def get_daily_scripture():
     try:
@@ -129,11 +166,14 @@ def save_journal():
     if journal_entry:
         users[username]["journal"].append({
             "date": datetime.now().strftime("%Y-%m-%d"),
-            "journal": journal_entry  # Updated key from 'text' to 'journal'
+            "journal": journal_entry, # Updated key from 'text' to 'journal'
+            "id": str(uuid.uuid4())
         })
         save_users(users)
 
     return redirect(url_for('home'))
+
+
 
 @app.route('/bookmark', methods=["POST"])
 def bookmark_prayer():
@@ -150,6 +190,46 @@ def bookmark_prayer():
         save_users(users)
 
     return redirect(url_for('home'))
+@app.route("/delete_bookmark", methods=["POST"])
+def delete_bookmark():
+    if "user" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    username = session["user"]
+    data = request.json
+    index = data.get("index")
+
+    users = load_users()
+    if username in users:
+        try:
+            users[username]["bookmarks"].pop(index - 1)  # Remove by index (1-based index)
+            save_users(users)
+            return jsonify({"message": "Bookmark deleted successfully"})
+        except IndexError:
+            return jsonify({"error": "Invalid bookmark index"}), 400
+
+    return jsonify({"error": "User not found"}), 404
+
+@app.route("/edit_bookmark", methods=["POST"])
+def edit_bookmark():
+    if "user" not in session:
+        return jsonify({"error": "Not logged in"}), 403
+
+    username = session["user"]
+    data = request.json
+    index = data.get("index")
+    new_text = data.get("new_text")
+
+    users = load_users()
+    if username in users:
+        try:
+            users[username]["bookmarks"][index - 1] = new_text  # Update bookmark
+            save_users(users)
+            return jsonify({"message": "Bookmark updated successfully"})
+        except IndexError:
+            return jsonify({"error": "Invalid bookmark index"}), 400
+
+    return jsonify({"error": "User not found"}), 404
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -373,3 +373,55 @@ html {
       height: 800px;
     }
   }/*# sourceMappingURL=index.css.map */
+
+  /* Dark mode ONLY for the calendar */
+#calendar-container {
+  background-color: #1e1e1e; /* Dark background */
+  color: white;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Calendar Header */
+#calendar .fc-toolbar {
+  background-color: #1e1e1e !important;
+  color: white !important;
+  border-bottom: 1px solid #333;
+}
+
+/* Calendar Days */
+#calendar .fc-daygrid-day {
+  background-color: #2b2b2b !important;
+  color: white !important;
+}
+
+/* Events inside Calendar */
+#calendar .fc-event {
+  background-color: #007bff !important; /* Blue color for events */
+  border-color: #0056b3 !important;
+  color: white !important;
+  font-size: 14px;
+  padding: 5px;
+  border-radius: 5px;
+}
+    #calendar-container {
+        background-color: #1e1e1e;
+        color: white;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    #calendar {
+        max-width: 100%;
+        height: auto; /* ✅ Allows resizing */
+        min-height: 500px; /* ✅ Ensures it's always visible */
+    }
+
+    /* ✅ Fix event display */
+    .fc-event {
+        white-space: normal !important; /* ✅ Allows multi-line text */
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }

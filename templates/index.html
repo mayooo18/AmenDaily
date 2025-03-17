@@ -3,6 +3,26 @@
 <head>
     <title>Welcome</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+
+    <!-- ✅ Correct FullCalendar CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
+
+    <style>
+        /* ✅ Fix Calendar Not Showing */
+        #calendar-container {
+            background-color: #1e1e1e;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        #calendar {
+            max-width: 90%;
+            margin: auto;
+            height: 500px; /* ✅ Ensures it renders properly */
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -13,15 +33,27 @@
             <div class="shooting-stars"></div>
         </div>
     </div>
+    
     <h2>Welcome, {{ username }}!</h2>
     
     <h3>Today's Scripture:</h3>
     <p>{{ scripture }}</p>
 
+    <!-- ✅ Calendar Section -->
+    <h3>Your Journal Calendar:</h3>
+    <div id="calendar-container">
+        <div id="calendar"></div>
+    </div>
+
+    <!-- ✅ Journal Entries -->
     <h3>Your Journal Entries:</h3>
     <ul id="journal-list">
-        {% for entry in user_data.journal[-5:] %}  <!-- Initially show only last 5 -->
-            <li>{{ entry.date }} - {{ entry.journal.replace('\n', '<br>')|safe }}</li>
+        {% for entry in user_data.journal[:5] %}
+            <li id="entry-{{ entry.id }}">
+                <span class="entry-text">{{ entry.date }} - {{ entry.journal.replace('\n', '<br>')|safe }}</span>
+                <button onclick="editEntry('{{ entry.id }}')">Edit</button>
+                <button onclick="deleteEntry('{{ entry.id }}')">Delete</button>
+            </li>
         {% endfor %}
     </ul>
 
@@ -29,30 +61,150 @@
         <button id="view-more">View More</button>
     {% endif %}
 
-    <script>
-        document.getElementById("view-more")?.addEventListener("click", function() {
-            document.getElementById("journal-list").innerHTML = `{% for entry in user_data.journal %}<li>{{ entry.date }} - {{ entry.journal.replace('\n', '<br>')|safe }}</li>{% endfor %}`;
-            this.style.display = "none"; // Hide button after expanding
-        });
-    </script>
     <form action="/journal" method="post">
         <textarea name="entry" rows="2" class="question" id="msg" required autocomplete="off"></textarea>
         <label for="msg"><span>Enter Journal Entry!: </span></label>
         <input type="submit" value="Submit!">
     </form>
 
+    <!-- ✅ Bookmarked Prayers -->
     <h3>Your Bookmarked Prayers:</h3>
     <ul>
         {% for prayer in user_data.bookmarks %}
         <li>{{ prayer }}</li>
         {% endfor %}
     </ul>
+    
     <form action="/bookmark" method="post">
         <textarea name="prayer" rows="2" class="question" id="bookmark_msg" required autocomplete="off"></textarea>
         <label for="bookmark_msg"><span>Enter a prayer to bookmark:</span></label>
         <input type="submit" value="Submit!">
     </form>
 
-    <a href="/logout">Logout</a>
+    <!-- ✅ Logout Button -->
+    <a href="/logout" class="logout-button">Logout</a>
+
+    <!-- ✅ JavaScript -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // ✅ Fix "View More" button
+            document.getElementById("view-more")?.addEventListener("click", function () {
+                fetch("{{ url_for('home') }}")
+                    .then(response => response.text())
+                    .then(html => {
+                        let parser = new DOMParser();
+                        let doc = parser.parseFromString(html, "text/html");
+                        let fullList = doc.querySelectorAll("#journal-list li");
+
+                        let listContainer = document.getElementById("journal-list");
+                        listContainer.innerHTML = ""; // Clear existing list
+
+                        fullList.forEach(entry => {
+                            listContainer.appendChild(entry); // Append all entries
+                        });
+
+                        this.style.display = "none"; // Hide button after expanding
+                    });
+            });
+
+            // ✅ Delete journal entry
+            window.deleteEntry = function (entryId) {
+                if (confirm("Are you sure you want to delete this entry?")) {
+                    fetch("/delete_entry", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ entry_id: entryId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            document.getElementById("entry-" + entryId).remove();
+                        } else {
+                            alert("Error: " + data.error);
+                        }
+                    });
+                }
+            };
+
+            // ✅ Edit journal entry
+            window.editEntry = function (entryId) {
+                let newText = prompt("Edit your journal entry:");
+                if (newText) {
+                    fetch("/edit_entry", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ entry_id: entryId, new_text: newText })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            document.querySelector(`#entry-${entryId} .entry-text`).innerHTML = newText.replace(/\n/g, "<br>");
+                        } else {
+                            alert("Error: " + data.error);
+                        }
+                    });
+                }
+            };
+        });
+    </script>
+
+    <!-- ✅ Correct FullCalendar JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
+
+    <!-- ✅ FullCalendar Fixes -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var calendarEl = document.getElementById("calendar");
+
+            // ✅ Ensure FullCalendar is loaded
+            if (typeof FullCalendar === "undefined") {
+                console.error("FullCalendar failed to load.");
+                return;
+            }
+
+           // ✅ Fixes Jinja syntax error
+var events = JSON.parse(`{{ user_data.journal | tojson | safe }}`);
+
+// ✅ Convert journal data into FullCalendar format
+var formattedEvents = events.map(entry => ({
+    title: entry.journal,  // ✅ Journal entry as title
+    start: entry.date,  // ✅ Date for calendar event
+    extendedProps: {
+        fullText: entry.journal  // ✅ Full text to show on click
+    }
+}));
+
+console.log("Loaded events:", formattedEvents); // ✅ Debugging
+
+// ✅ Initialize FullCalendar with correctly formatted events
+var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: "dayGridMonth",
+    events: formattedEvents,  // ✅ Using the correctly formatted events array
+    eventClick: function (info) {
+    if (info.event.extendedProps && info.event.extendedProps.fullText) {
+        alert("Journal Entry:\n" + info.event.extendedProps.fullText);
+    } else {
+        alert("Journal Entry:\n(No details available)");
+    }
+}
+});
+
+calendar.render();
+
+
+            console.log("Loaded events:", events); // ✅ Debugging
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: "dayGridMonth",
+                events: events,
+                eventClick: function (info) {
+                    alert("Journal Entry:\n" + info.event.extendedProps.fullText);
+                }
+            });
+
+            calendar.render();
+        });
+    </script>
+
 </body>
 </html>
