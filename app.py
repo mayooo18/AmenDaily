@@ -3,7 +3,7 @@ import os
 import json
 import random
 import requests
-from datetime import date
+from datetime import date, datetime
 
 app = Flask(__name__)
 app.secret_key = "key"
@@ -118,16 +118,19 @@ def logout():
 
 @app.route('/journal', methods=["POST"])
 def save_journal():
-    """Save a journal entry for the logged-in user."""
+    """Save a journal entry for the logged-in user with the date."""
     if "user" not in session:
         return redirect(url_for('login'))
 
     users = load_users()
     username = session["user"]
-    journal_entry = request.form.get("entry")
+    journal_entry = request.form.get("entry").strip()  # Clean input
 
     if journal_entry:
-        users[username]["journal"].append(journal_entry)
+        users[username]["journal"].append({
+            "date": datetime.now().strftime("%Y-%m-%d"),
+            "journal": journal_entry  # Updated key from 'text' to 'journal'
+        })
         save_users(users)
 
     return redirect(url_for('home'))

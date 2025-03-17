@@ -1,17 +1,15 @@
 {
     "mario": {
         "pin": "1234",
-        "journal": [],
-        "bookmarks": []
-    },
-    "123": {
-        "pin": "123",
-        "journal": [],
-        "bookmarks": []
-    },
-    "narui": {
-        "pin": "2344",
-        "journal": [],
-        "bookmarks": []
+        "journal": [
+            {
+                "date": "2025-03-16",
+                "journal": "kjk"
+            }
+        ],
+        "bookmarks": [
+            "kljnlkn"
+        ]
     }
+    
 }

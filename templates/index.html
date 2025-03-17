@@ -5,22 +5,40 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 </head>
 <body>
+    <div class="container">
+        <div class="sky">
+            <div class="stars"></div>
+            <div class="stars1"></div>
+            <div class="stars2"></div>
+            <div class="shooting-stars"></div>
+        </div>
+    </div>
     <h2>Welcome, {{ username }}!</h2>
     
     <h3>Today's Scripture:</h3>
     <p>{{ scripture }}</p>
 
     <h3>Your Journal Entries:</h3>
-    <ul>
-        {% for entry in user_data.journal %}
-        <li>{{ entry }}</li>
+    <ul id="journal-list">
+        {% for entry in user_data.journal[-5:] %}  <!-- Initially show only last 5 -->
+            <li>{{ entry.date }} - {{ entry.journal.replace('\n', '<br>')|safe }}</li>
         {% endfor %}
     </ul>
 
-    <h3>Add a Journal Entry:</h3>
-    <form action="/journal" method="POST">
-        <textarea name="entry" required></textarea>
-        <button type="submit">Save</button>
+    {% if user_data.journal|length > 5 %}
+        <button id="view-more">View More</button>
+    {% endif %}
+
+    <script>
+        document.getElementById("view-more")?.addEventListener("click", function() {
+            document.getElementById("journal-list").innerHTML = `{% for entry in user_data.journal %}<li>{{ entry.date }} - {{ entry.journal.replace('\n', '<br>')|safe }}</li>{% endfor %}`;
+            this.style.display = "none"; // Hide button after expanding
+        });
+    </script>
+    <form action="/journal" method="post">
+        <textarea name="entry" rows="2" class="question" id="msg" required autocomplete="off"></textarea>
+        <label for="msg"><span>Enter Journal Entry!: </span></label>
+        <input type="submit" value="Submit!">
     </form>
 
     <h3>Your Bookmarked Prayers:</h3>
@@ -29,11 +47,10 @@
         <li>{{ prayer }}</li>
         {% endfor %}
     </ul>
-
-    <h3>Bookmark a Prayer:</h3>
-    <form action="/bookmark" method="POST">
-        <input type="text" name="prayer" required>
-        <button type="submit">Bookmark</button>
+    <form action="/bookmark" method="post">
+        <textarea name="prayer" rows="2" class="question" id="bookmark_msg" required autocomplete="off"></textarea>
+        <label for="bookmark_msg"><span>Enter a prayer to bookmark:</span></label>
+        <input type="submit" value="Submit!">
     </form>
 
     <a href="/logout">Logout</a>
