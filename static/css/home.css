@@ -86,13 +86,16 @@ h2 {
     left: 50%;
     transform: translate(-50%, -50%); /* Centers perfectly */
     text-align: center;
-    width: max-content; /* Prevents shrinking */
+    width: max-content; 
+    margin-bottom: 40px;/* Prevents shrinking */
+    margin-top: 40px;
 }
 
 h3 {
     color: wheat;  /* Dark blue */
     font-family: "Georgia", serif;  /* Example: A different font for headings */
     text-align: left;
+    margin-top: 100px;
 }
 
 /* Paragraphs (like scripture) */
