@@ -4,13 +4,9 @@
         "journal": [
             {
                 "date": "2025-03-17",
-                "journal": "today I felt good",
-                "id": "2e2b0bbb-d673-49f3-afb9-fa62a4522652"
-            },
-            {
-                "date": "2025-03-17",
-                "journal": "hi",
-                "id": "c1ce7a48-c2f9-4db3-b693-1aa69c78cc9f"
+                "journal": "hello today I felt good but im tired",
+                "id": "c1ce7a48-c2f9-4db3-b693-1aa69c78cc9f",
+                "edited_at": "2025-03-17T15:07:21.006219"
             }
         ],
         "bookmarks": [

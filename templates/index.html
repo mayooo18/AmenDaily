@@ -8,19 +8,27 @@
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
 
     <style>
-        /* ✅ Fix Calendar Not Showing */
+        /* ✅ Fix stretching and alignment */
+        body {
+            max-width: none; /* Remove fixed width */
+        }
+
         #calendar-container {
+            width: 100%; /* Ensure it fills the parent */
+            display: flex;
+            justify-content: center;
+            align-items: center;
             background-color: #1e1e1e;
             color: white;
-            padding: 10px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
         }
 
         #calendar {
-            max-width: 90%;
-            margin: auto;
-            height: 500px; /* ✅ Ensures it renders properly */
+            width: 100%; /* Allow full expansion */
+            max-width: none; /* Remove max-width limit */
+            min-height: 500px;
         }
     </style>
 </head>
@@ -87,7 +95,6 @@
     <!-- ✅ JavaScript -->
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // ✅ Fix "View More" button
             document.getElementById("view-more")?.addEventListener("click", function () {
                 fetch("{{ url_for('home') }}")
                     .then(response => response.text())
@@ -156,54 +163,66 @@
         document.addEventListener("DOMContentLoaded", function () {
             var calendarEl = document.getElementById("calendar");
 
-            // ✅ Ensure FullCalendar is loaded
             if (typeof FullCalendar === "undefined") {
                 console.error("FullCalendar failed to load.");
                 return;
             }
 
-           // ✅ Fixes Jinja syntax error
-var events = JSON.parse(`{{ user_data.journal | tojson | safe }}`);
+            var events = JSON.parse(`{{ user_data.journal | tojson | safe }}`);
 
-// ✅ Convert journal data into FullCalendar format
-var formattedEvents = events.map(entry => ({
-    title: entry.journal,  // ✅ Journal entry as title
-    start: entry.date,  // ✅ Date for calendar event
-    extendedProps: {
-        fullText: entry.journal  // ✅ Full text to show on click
-    }
-}));
+            var formattedEvents = events.map(entry => ({
+                title: entry.journal.length > 10 ? entry.journal.substring(0, 10) + "..." : entry.journal,
+                start: entry.date,
+                extendedProps: {
+                    fullText: entry.journal
+                }
+            }));
 
-console.log("Loaded events:", formattedEvents); // ✅ Debugging
-
-// ✅ Initialize FullCalendar with correctly formatted events
-var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: "dayGridMonth",
-    events: formattedEvents,  // ✅ Using the correctly formatted events array
-    eventClick: function (info) {
-    if (info.event.extendedProps && info.event.extendedProps.fullText) {
-        alert("Journal Entry:\n" + info.event.extendedProps.fullText);
-    } else {
-        alert("Journal Entry:\n(No details available)");
-    }
-}
-});
-
-calendar.render();
-
-
-            console.log("Loaded events:", events); // ✅ Debugging
+            console.log("Loaded events:", formattedEvents);
 
             var calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: "dayGridMonth",
-                events: events,
+                events: formattedEvents,
                 eventClick: function (info) {
-                    alert("Journal Entry:\n" + info.event.extendedProps.fullText);
+                    alert("Full Journal Entry:\n" + info.event.extendedProps.fullText);
                 }
             });
 
             calendar.render();
         });
+    </script>
+
+    <!-- ✅ Revert Body Changes Script -->
+    <script>
+        async function setElementStyles(element, styles) {
+            for (let key in styles) {
+                if (styles.hasOwnProperty(key)) {
+                    element.style[key] = styles[key];
+                }
+            }
+        }
+
+        async function revertBodyChanges() {
+            const body = document.querySelector('body.ai-style-change-1');
+            if (body) {
+                body.classList.remove('ai-style-change-1');
+                await setElementStyles(body, {
+                    display: "",
+                    justifyContent: "",
+                    alignItems: "",
+                    minHeight: "",
+                });
+            }
+            const calendarContainer = document.getElementById('calendar-container');
+            if (calendarContainer){
+                await setElementStyles(calendarContainer, {
+                    justifyContent: "",
+                    alignItems: ""
+                });
+            }
+        }
+
+        revertBodyChanges();
     </script>
 
 </body>
