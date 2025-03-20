@@ -77,11 +77,16 @@
 
     <!-- ✅ Bookmarked Prayers -->
     <h3>Your Bookmarked Prayers:</h3>
-    <ul>
+    <ul id="bookmark-list">
         {% for prayer in user_data.bookmarks %}
-        <li>{{ prayer }}</li>
+            <li id="bookmark-{{ loop.index }}">
+                <span class="bookmark-text">{{ prayer }}</span>
+                <button onclick="editBookmark('{{ loop.index }}')">Edit</button>
+                <button onclick="deleteBookmark('{{ loop.index }}')">Delete</button>
+            </li>
         {% endfor %}
     </ul>
+    
     
     <form action="/bookmark" method="post">
         <textarea name="prayer" rows="2" class="question" id="bookmark_msg" required autocomplete="off"></textarea>
@@ -224,6 +229,48 @@
 
         revertBodyChanges();
     </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // ✅ Delete a bookmark
+        window.deleteBookmark = function (bookmarkId) {
+            if (confirm("Are you sure you want to delete this bookmark?")) {
+                fetch("/delete_bookmark", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ bookmark_id: bookmarkId })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        document.getElementById("bookmark-" + bookmarkId).remove();
+                    } else {
+                        alert("Error: " + data.error);
+                    }
+                });
+            }
+        };
+
+        // ✅ Edit a bookmark
+        window.editBookmark = function (bookmarkId) {
+            let newText = prompt("Edit your bookmark:");
+            if (newText) {
+                fetch("/edit_bookmark", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ bookmark_id: bookmarkId, new_text: newText })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.message) {
+                        document.querySelector(`#bookmark-${bookmarkId} .bookmark-text`).innerHTML = newText;
+                    } else {
+                        alert("Error: " + data.error);
+                    }
+                });
+            }
+        };
+    });
+</script>
 
 </body>
 </html>

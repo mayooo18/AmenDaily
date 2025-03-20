@@ -27,6 +27,11 @@ li {
 form {
     margin-top: 15px;
 }
+/* ✅ Add space below the bookmark form */
+form[action="/bookmark"] {
+  margin-bottom: 100px; /* Adjust space as needed */
+}
+
 
 textarea, input[type="text"] {
     width: 100%;
@@ -385,7 +390,7 @@ html {
 
 #calendar-container {
   width: 100%;
-  max-width: 800px; /* ✅ Limit container width */
+  max-width: 600px; /* ✅ Limit container width */
   margin: auto; /* ✅ Center the calendar */
   display: flex;
   justify-content: center;
@@ -399,7 +404,7 @@ html {
 
 #calendar {
   width: 100%;
-  max-width: 400px; /* ✅ Smaller calendar width */
+  max-width: 300px; /* ✅ Smaller calendar width */
   min-height: 300px; /* ✅ Reduce height */
   border-radius: 5px;
 }
@@ -439,4 +444,51 @@ html {
   text-overflow: ellipsis;
   max-width: 80px; /* Limit event width */
   display: inline-block;
+}
+#journal-list button {
+  background: #5c67f2; /* Match primary button color */
+  color: white; /* Text color */
+  padding: 6px 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+  margin-left: 8px; /* Add spacing between buttons */
+}
+
+#journal-list button:hover {
+  background: #4a54e1; /* Slightly darker on hover */
+}
+
+#journal-list button:nth-child(2) {
+  background: #d9534f; /* Red for delete */
+}
+
+
+#journal-list button:nth-child(2):hover {
+  background: #c9302c; /* Darker red on hover */
+}
+#bookmark-list button:hover {
+  background: #4a54e1; /* Slightly darker on hover */
+}
+
+#bookmark-list button:nth-child(2) {
+  background: #d9534f; /* Red for delete */
+}
+
+
+#bookmark-list button:nth-child(2):hover {
+  background: #c9302c; /* Darker red on hover */
+}
+
+.logout-button {
+  display: block; /* Ensures it's on its own line */
+  margin-bottom: 20px; /* Adjust space as needed */
+  padding: 10px 15px;
+  background-color: wheat; /* Keep it styled */
+  color: black;
+  text-decoration: none;
+  border-radius: 5px;
+  margin-top: 30px;
 }

@@ -255,7 +255,7 @@ body {
 }
 
 .c-form__toggle {
-  color: rgb(255, 255, 255);
+  color:wheat;
   top: 0;
   cursor: pointer;
   z-index: 1;
@@ -272,7 +272,7 @@ body {
   font-family: 'Fredoka', sans-serif;
   font-size: 1.8rem; /* ✅ Consistent font size */
   background: black;
-  color: white;
+  color: wheat;
   padding: 12px;
   text-align: center;
   border-radius: 30px;
@@ -284,7 +284,7 @@ body {
   font-family: 'Fredoka', sans-serif;
   font-size: 1.8rem; /* ✅ Consistent font size */
   background: black;
-  color: white;
+  color: wheat;
   padding: 12px;
   text-align: center;
   border-radius: 30px;
@@ -297,7 +297,7 @@ body {
 .c-form__input,
 .c-form__buttonLabel {
   font-size: 1.8rem;
-  color: #ffffff;
+  color: wheat;
   opacity: 0;
   visibility: hidden;
   transform: scale(0.7);
@@ -305,21 +305,21 @@ body {
 }
 
 .c-form__input {
-  color: #fffefe;
+  color: wheat;
   height: 100%;
   width: 100%;
   padding: 0 0.714em;
 }
 .c-form__input::-moz-placeholder {
-  color: rgb(255, 255, 255);
+  color: wheat;
 }
 .c-form__input::placeholder {
   font-family: 'Fredoka', sans-serif;
   font-size: 1.8rem;
-  color: rgb(255, 255, 255);
+  color: wheat;
 }
 .c-form__input:required:valid {
-  color: rgb(255, 255, 255);
+  color: wheat;
 }
 .c-form__input:required:valid + .c-form__buttonLabel {
   color: #000000;
@@ -329,7 +329,7 @@ body {
 }
 
 .c-form__buttonLabel {
-  color: #ffffff;
+  color: wheat;
   height: 100%;
   width: auto;
   font-size: 1.8rem;
