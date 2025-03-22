@@ -3,18 +3,14 @@
 <head>
     <title>Welcome</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-
-    <!-- ✅ Correct FullCalendar CSS -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet">
-
     <style>
-        /* ✅ Fix stretching and alignment */
         body {
-            max-width: none; /* Remove fixed width */
+            max-width: none;
         }
 
         #calendar-container {
-            width: 100%; /* Ensure it fills the parent */
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -26,245 +22,227 @@
         }
 
         #calendar {
-            width: 100%; /* Allow full expansion */
-            max-width: none; /* Remove max-width limit */
+            width: 100%;
+            max-width: none;
             min-height: 500px;
+        }
+
+        .entry-text {
+            color: white;
+        }
+
+        .mood-prayer-block {
+            background-color: #202030;
+            border-left: 4px solid #7aa2f7;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="sky">
-            <div class="stars"></div>
-            <div class="stars1"></div>
-            <div class="stars2"></div>
-            <div class="shooting-stars"></div>
-        </div>
-    </div>
-    
-    <h2>Welcome, {{ username }}!</h2>
-    
-    <h3>Today's Scripture:</h3>
-    <p>{{ scripture }}</p>
 
-    <!-- ✅ Calendar Section -->
-    <h3>Your Journal Calendar:</h3>
-    <div id="calendar-container">
-        <div id="calendar"></div>
-    </div>
+<h1>Welcome, {{ username }}!</h1>
+<h3>Today's Scripture:</h3>
+<p>{{ scripture }}</p>
 
-    <!-- ✅ Journal Entries -->
-    <h3>Your Journal Entries:</h3>
-    <ul id="journal-list">
-        {% for entry in user_data.journal[:5] %}
-            <li id="entry-{{ entry.id }}">
-                <span class="entry-text">{{ entry.date }} - {{ entry.journal.replace('\n', '<br>')|safe }}</span>
-                <button onclick="editEntry('{{ entry.id }}')">Edit</button>
-                <button onclick="deleteEntry('{{ entry.id }}')">Delete</button>
-            </li>
-        {% endfor %}
-    </ul>
-
-    {% if user_data.journal|length > 5 %}
-        <button id="view-more">View More</button>
-    {% endif %}
-
-    <form action="/journal" method="post">
-        <textarea name="entry" rows="2" class="question" id="msg" required autocomplete="off"></textarea>
-        <label for="msg"><span>Enter Journal Entry!: </span></label>
-        <input type="submit" value="Submit!">
+<!-- Mood Selection -->
+<section class="mood-selection">
+    <h3>How are you feeling today?</h3>
+    <form action="/select_mood" method="POST">
+        <select name="mood" required>
+            <option value="">-- Select a mood --</option>
+            <option value="grateful">😊 Grateful</option>
+            <option value="anxious">😰 Anxious</option>
+            <option value="hopeful">🌟 Hopeful</option>
+            <option value="sad">😢 Sad</option>
+            <option value="peaceful">🙏 Peaceful</option>
+            <option value="strong">💪 Strong</option>
+            <option value="loved">❤️ Loved</option>
+            <option value="seeking">😔 Seeking Guidance</option>
+        </select>
+        <button type="submit">Get Prayer</button>
     </form>
+</section>
 
-    <!-- ✅ Bookmarked Prayers -->
-    <h3>Your Bookmarked Prayers:</h3>
-    <ul id="bookmark-list">
-        {% for prayer in user_data.bookmarks %}
-            <li id="bookmark-{{ loop.index }}">
-                <span class="bookmark-text">{{ prayer }}</span>
-                <button onclick="editBookmark('{{ loop.index }}')">Edit</button>
-                <button onclick="deleteBookmark('{{ loop.index }}')">Delete</button>
-            </li>
-        {% endfor %}
-    </ul>
-    
-    
-    <form action="/bookmark" method="post">
-        <textarea name="prayer" rows="2" class="question" id="bookmark_msg" required autocomplete="off"></textarea>
-        <label for="bookmark_msg"><span>Enter a prayer to bookmark:</span></label>
-        <input type="submit" value="Submit!">
-    </form>
+<!-- Mood-Based Prayer Display -->
+{% if mood_prayer %}
+<div class="mood-prayer-block">
+    <h3>Today's Mood-Based Prayer</h3>
+    <p><strong>Date:</strong> {{ mood_prayer["date"] }}</p>
+    <p><strong>Mood:</strong> {{ mood_prayer["mood"].capitalize() }}</p>
+    <blockquote>{{ mood_prayer["journal"] }}</blockquote>
+</div>
+{% endif %}
 
-    <!-- ✅ Logout Button -->
-    <a href="/logout" class="logout-button">Logout</a>
+<!-- Calendar -->
+<h3>Your Journal Calendar:</h3>
+<div id="calendar-container">
+    <div id="calendar"></div>
+</div>
 
-    <!-- ✅ JavaScript -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            document.getElementById("view-more")?.addEventListener("click", function () {
-                fetch("{{ url_for('home') }}")
-                    .then(response => response.text())
-                    .then(html => {
-                        let parser = new DOMParser();
-                        let doc = parser.parseFromString(html, "text/html");
-                        let fullList = doc.querySelectorAll("#journal-list li");
+<!-- Journal Section -->
+<h3>Your Personal Journal Entries:</h3>
+<ul id="journal-list">
+    {% for entry in user_data.journal %}
+        {% if entry.type != 'mood_prayer' %}
+        <li id="entry-{{ entry.id }}">
+            <span class="entry-text">{{ entry.date }} - {{ entry.journal.replace('\n', '<br>')|safe }}</span>
+            <button onclick="editEntry('{{ entry.id }}')">Edit</button>
+            <button onclick="deleteEntry('{{ entry.id }}')">Delete</button>
+        </li>
+        {% endif %}
+    {% endfor %}
+</ul>
 
-                        let listContainer = document.getElementById("journal-list");
-                        listContainer.innerHTML = ""; // Clear existing list
+<!-- Mood Prayers -->
+<h3>Your Mood-Based Prayers:</h3>
+<ul id="mood-prayer-list">
+    {% for entry in user_data.journal %}
+        {% if entry.type == 'mood_prayer' %}
+        <li id="mood-{{ entry.id }}" class="mood-prayer-block">
+            <span class="entry-text">
+                <strong>{{ entry.date }}</strong> — 
+                <strong>Mood:</strong> {{ entry.mood.capitalize() }}<br>
+                {{ entry.journal.replace('\n', '<br>')|safe }}
+            </span>
+            <button onclick="deleteEntry('{{ entry.id }}')">Delete</button>
+        </li>
+        {% endif %}
+    {% endfor %}
+</ul>
 
-                        fullList.forEach(entry => {
-                            listContainer.appendChild(entry); // Append all entries
-                        });
+<!-- Journal Form -->
+<form action="/journal" method="post">
+    <textarea name="entry" rows="2" class="question" id="msg" required autocomplete="off"></textarea>
+    <label for="msg"><span>Enter Journal Entry!: </span></label>
+    <input type="submit" value="Submit!">
+</form>
 
-                        this.style.display = "none"; // Hide button after expanding
-                    });
-            });
+<!-- Bookmarks -->
+<h3>Your Bookmarked Prayers:</h3>
+<ul id="bookmark-list">
+    {% for prayer in user_data.bookmarks %}
+    <li id="bookmark-{{ loop.index }}">
+        <span class="bookmark-text">{{ prayer }}</span>
+        <button onclick="editBookmark('{{ loop.index }}')">Edit</button>
+        <button onclick="deleteBookmark('{{ loop.index }}')">Delete</button>
+    </li>
+    {% endfor %}
+</ul>
 
-            // ✅ Delete journal entry
-            window.deleteEntry = function (entryId) {
-                if (confirm("Are you sure you want to delete this entry?")) {
-                    fetch("/delete_entry", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ entry_id: entryId })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.message) {
-                            document.getElementById("entry-" + entryId).remove();
-                        } else {
-                            alert("Error: " + data.error);
-                        }
-                    });
-                }
-            };
+<form action="/bookmark" method="post">
+    <textarea name="prayer" rows="2" class="question" id="bookmark_msg" required autocomplete="off"></textarea>
+    <label for="bookmark_msg"><span>Enter a prayer to bookmark:</span></label>
+    <input type="submit" value="Submit!">
+</form>
 
-            // ✅ Edit journal entry
-            window.editEntry = function (entryId) {
-                let newText = prompt("Edit your journal entry:");
-                if (newText) {
-                    fetch("/edit_entry", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ entry_id: entryId, new_text: newText })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.message) {
-                            document.querySelector(`#entry-${entryId} .entry-text`).innerHTML = newText.replace(/\n/g, "<br>");
-                        } else {
-                            alert("Error: " + data.error);
-                        }
-                    });
-                }
-            };
-        });
-    </script>
+<a href="/logout" class="logout-button">Logout</a>
 
-    <!-- ✅ Correct FullCalendar JavaScript -->
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
-
-    <!-- ✅ FullCalendar Fixes -->
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            var calendarEl = document.getElementById("calendar");
-
-            if (typeof FullCalendar === "undefined") {
-                console.error("FullCalendar failed to load.");
-                return;
-            }
-
-            var events = JSON.parse(`{{ user_data.journal | tojson | safe }}`);
-
-            var formattedEvents = events.map(entry => ({
-                title: entry.journal.length > 10 ? entry.journal.substring(0, 10) + "..." : entry.journal,
-                start: entry.date,
-                extendedProps: {
-                    fullText: entry.journal
-                }
-            }));
-
-            console.log("Loaded events:", formattedEvents);
-
-            var calendar = new FullCalendar.Calendar(calendarEl, {
-                initialView: "dayGridMonth",
-                events: formattedEvents,
-                eventClick: function (info) {
-                    alert("Full Journal Entry:\n" + info.event.extendedProps.fullText);
-                }
-            });
-
-            calendar.render();
-        });
-    </script>
-
-    <!-- ✅ Revert Body Changes Script -->
-    <script>
-        async function setElementStyles(element, styles) {
-            for (let key in styles) {
-                if (styles.hasOwnProperty(key)) {
-                    element.style[key] = styles[key];
-                }
-            }
-        }
-
-        async function revertBodyChanges() {
-            const body = document.querySelector('body.ai-style-change-1');
-            if (body) {
-                body.classList.remove('ai-style-change-1');
-                await setElementStyles(body, {
-                    display: "",
-                    justifyContent: "",
-                    alignItems: "",
-                    minHeight: "",
-                });
-            }
-            const calendarContainer = document.getElementById('calendar-container');
-            if (calendarContainer){
-                await setElementStyles(calendarContainer, {
-                    justifyContent: "",
-                    alignItems: ""
-                });
-            }
-        }
-
-        revertBodyChanges();
-    </script>
+<!-- JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // ✅ Delete a bookmark
-        window.deleteBookmark = function (bookmarkId) {
-            if (confirm("Are you sure you want to delete this bookmark?")) {
-                fetch("/delete_bookmark", {
+        const calendarEl = document.getElementById("calendar");
+        const events = JSON.parse('{{ user_data.journal | tojson | safe }}');
+
+
+
+        const formattedEvents = events.map(entry => {
+            const isMood = entry.type === "mood_prayer";
+            const label = isMood
+                ? "🧠 " + entry.mood.charAt(0).toUpperCase() + entry.mood.slice(1)
+                : "📝";
+
+            return {
+                title: label,
+                start: entry.date,
+                extendedProps: {
+                    fullText: entry.journal,
+                    type: entry.type || "journal",
+                    mood: entry.mood || null
+                }
+            };
+        });
+
+        const calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: "dayGridMonth",
+            events: formattedEvents,
+            eventClick: function (info) {
+                const mood = info.event.extendedProps.mood
+                    ? "Mood: " + info.event.extendedProps.mood
+                    : "";
+                alert(`${info.event.startStr}\n${mood}\n\n${info.event.extendedProps.fullText}`);
+            },
+            eventDidMount: function (info) {
+                if (info.event.extendedProps.type === "mood_prayer") {
+                    info.el.style.backgroundColor = "#7aa2f7";
+                } else {
+                    info.el.style.backgroundColor = "#f5c518";
+                }
+            }
+        });
+
+        calendar.render();
+
+        // Delete journal entry
+        window.deleteEntry = function (entryId) {
+            if (confirm("Delete this entry?")) {
+                fetch("/delete_entry", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ bookmark_id: bookmarkId })
-                })
-                .then(response => response.json())
-                .then(data => {
+                    body: JSON.stringify({ entry_id: entryId })
+                }).then(res => res.json()).then(data => {
                     if (data.message) {
-                        document.getElementById("bookmark-" + bookmarkId).remove();
-                    } else {
-                        alert("Error: " + data.error);
+                        document.getElementById("entry-" + entryId)?.remove();
+                        document.getElementById("mood-" + entryId)?.remove();
                     }
                 });
             }
         };
 
-        // ✅ Edit a bookmark
-        window.editBookmark = function (bookmarkId) {
+        // Edit journal entry
+        window.editEntry = function (entryId) {
+            let newText = prompt("Edit your journal entry:");
+            if (newText) {
+                fetch("/edit_entry", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ entry_id: entryId, new_text: newText })
+                }).then(res => res.json()).then(data => {
+                    if (data.message) {
+                        document.querySelector(`#entry-${entryId} .entry-text`).innerHTML = newText.replace(/\n/g, "<br>");
+                    }
+                });
+            }
+        };
+
+        // Edit bookmark
+        window.editBookmark = function (index) {
             let newText = prompt("Edit your bookmark:");
             if (newText) {
                 fetch("/edit_bookmark", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ bookmark_id: bookmarkId, new_text: newText })
-                })
-                .then(response => response.json())
-                .then(data => {
+                    body: JSON.stringify({ index: index, new_text: newText })
+                }).then(res => res.json()).then(data => {
                     if (data.message) {
-                        document.querySelector(`#bookmark-${bookmarkId} .bookmark-text`).innerHTML = newText;
-                    } else {
-                        alert("Error: " + data.error);
+                        document.querySelector(`#bookmark-${index} .bookmark-text`).innerHTML = newText;
+                    }
+                });
+            }
+        };
+
+        // Delete bookmark
+        window.deleteBookmark = function (index) {
+            if (confirm("Delete this bookmark?")) {
+                fetch("/delete_bookmark", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ index: index })
+                }).then(res => res.json()).then(data => {
+                    if (data.message) {
+                        document.getElementById("bookmark-" + index).remove();
                     }
                 });
             }
