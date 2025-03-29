@@ -13,6 +13,12 @@
     transform: translateX(-50%); /* Adjust for exact centering */
 
 }
+@media (max-width: 500px) {
+  .title {
+    font-size: 1.8rem;
+  }
+}
+
 
 *, *:before, *:after {
   margin: 0;
