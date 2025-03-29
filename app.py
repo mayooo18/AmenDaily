@@ -41,6 +41,7 @@ def get_ai_generated_prayer(mood, name):
 
 app = Flask(__name__)
 app.secret_key = "key"
+HUGGINGFACE_API_KEY = os.environ.get("HF_API_KEY")
 
 USER_DATA_FILE = "users.json"
 

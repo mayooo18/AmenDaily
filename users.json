@@ -1,7 +1,15 @@
 {
     "mario": {
         "pin": "1234",
-        "journal": [],
+        "journal": [
+            {
+                "date": "2025-03-28",
+                "journal": "Dear Lord, bless Mario today. Thank you for his health, strength, and blessings. Fill his heart with gratitude and love for you. Amen.",
+                "mood": "grateful",
+                "type": "mood_prayer",
+                "id": "c689e365-7922-4ef7-b915-0ede8a0c5649"
+            }
+        ],
         "bookmarks": [],
         "journal_entries": []
     }
