@@ -1,18 +1,8 @@
 {
     "mario": {
         "pin": "1234",
-        "journal": [
-            {
-                "date": "2025-03-21",
-                "journal": "Thank You, God, for the stillness in my spirit today.",
-                "mood": "peaceful",
-                "type": "mood_prayer",
-                "id": "2ca6e973-af4c-4663-9331-cdc58a224ae5"
-            }
-        ],
-        "bookmarks": [
-            "yes sirrrr"
-        ],
+        "journal": [],
+        "bookmarks": [],
         "journal_entries": []
     }
 }

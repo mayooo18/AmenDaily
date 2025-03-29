@@ -1,6 +1,43 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import os, json, random, uuid
 from datetime import date, datetime
+import requests
+
+HUGGINGFACE_API_URL = "https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.1"
+HUGGINGFACE_API_KEY = os.environ.get("HF_API_KEY")
+
+headers = {
+    "Authorization": f"Bearer {HUGGINGFACE_API_KEY}"
+}
+
+def get_ai_generated_prayer(mood, name):
+    prompt = (
+        f"Write a short, sincere prayer for someone named {name} who is feeling {mood}. "
+        "Make it gentle and encouraging. Keep it under 60 words. "
+    )
+
+    try:
+        response = requests.post(
+            HUGGINGFACE_API_URL,
+            headers=headers,
+            json={"inputs": prompt}
+        )
+        result = response.json()
+        full_text = result[0]["generated_text"]
+        prayer_only = full_text.split("Keep it under 60 words.")[-1].strip()
+        return prayer_only
+
+    except Exception as e:
+        print("Hugging Face Error:", e)
+        if 'response' in locals():
+            print("Response status:", response.status_code)
+            print("Response content:", response.text)
+        else:
+            print("No response object.")
+        return "Dear God, meet me where I am today."
+
+
+
 
 app = Flask(__name__)
 app.secret_key = "key"
@@ -19,16 +56,7 @@ def save_users(users):
     with open(USER_DATA_FILE, "w") as f:
         json.dump(users, f, indent=4)
 
-mood_prayers = {
-    "grateful": ["Lord, thank You for the blessings I see and the ones I often overlook."],
-    "anxious": ["God, calm my racing heart. Help me trust that You are in control."],
-    "hopeful": ["Lord, thank You for hope that lights even the darkest days."],
-    "sad": ["Father, I’m hurting. Please remind me I’m not alone."],
-    "peaceful": ["Thank You, God, for the stillness in my spirit today."],
-    "strong": ["Lord, give me strength to carry what I must with courage."],
-    "loved": ["Thank You for the love that surrounds me, seen and unseen."],
-    "seeking": ["I need Your guidance, Lord. Please lead me where I need to go."]
-}
+
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -79,7 +107,8 @@ def select_mood():
     user = users.get(username)
 
     today_str = str(date.today())
-    prayer = random.choice(mood_prayers.get(mood, ["Dear God, meet me where I am."]))
+    prayer = get_ai_generated_prayer(mood, username)
+
 
     entry = {
     "date": today_str,
