@@ -189,22 +189,24 @@
         });
 
         const calendar = new FullCalendar.Calendar(calendarEl, {
-            initialView: "dayGridMonth",
-            events: formattedEvents,
-            eventClick: function (info) {
-                const mood = info.event.extendedProps.mood
-                    ? "Mood: " + info.event.extendedProps.mood
-                    : "";
-                alert(`${info.event.startStr}\n${mood}\n\n${info.event.extendedProps.fullText}`);
-            },
-            eventDidMount: function (info) {
-                if (info.event.extendedProps.type === "mood_prayer") {
-                    info.el.style.backgroundColor = "#7aa2f7";
-                } else {
-                    info.el.style.backgroundColor = "#f5c518";
-                }
-            }
-        });
+    initialView: "dayGridMonth",
+    firstDay: 1, // 👈 Start week on Monday
+    events: formattedEvents,
+    eventClick: function (info) {
+        const mood = info.event.extendedProps.mood
+            ? "Mood: " + info.event.extendedProps.mood
+            : "";
+        alert(`${info.event.startStr}\n${mood}\n\n${info.event.extendedProps.fullText}`);
+    },
+    eventDidMount: function (info) {
+        if (info.event.extendedProps.type === "mood_prayer") {
+            info.el.style.backgroundColor = "#7aa2f7"; // Blue for mood-based
+        } else {
+            info.el.style.backgroundColor = "#f5c518"; // Yellow for journals
+        }
+    }
+});
+          
 
         calendar.render();
 
