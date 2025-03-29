@@ -7,6 +7,7 @@
     font-family: 'Fredoka', sans-serif;
     color: wheat;
     position: absolute;
+    white-space: nowrap;
     top: 85px;
     left: 50%; /* Move to the middle of the screen */
     transform: translateX(-50%); /* Adjust for exact centering */
